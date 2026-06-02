@@ -1,24 +1,278 @@
 {
-  "_description": "东亚人群身体数据参考值 - 待从研究文献填充",
+  "_description": "东亚人群身体数据参考值 - 用于Fitness Advisor技能的健康评估与风险分层",
+  "_source": "WHO西太平洋地区标准, 中国肥胖问题工作组(COTF), 中国居民膳食指南2022, ACSM, NSCA, 中国2型糖尿病防治指南, 中国高血压防治指南",
+  "_note": "东亚人群在相同BMI下体脂率高于西方人群，腰围风险阈值更低。所有切点标注来源。",
+
   "bmi_cutoffs": {
-    "_source": "WHO Asian BMI criteria",
-    "underweight": "<18.5",
-    "normal": "18.5 - 22.9",
-    "overweight": "23.0 - 27.4",
-    "obese": "≥27.5"
+    "_source": "WHO西太平洋标准 + 中国COTF标准",
+    "_note": "亚洲人群使用比WHO国际标准更低的切点",
+    "who_asian": {
+      "underweight": "<18.5",
+      "normal": "18.5 – 22.9",
+      "overweight_at_risk": "23.0 – 24.9",
+      "obese_I": "25.0 – 29.9",
+      "obese_II": "≥30.0"
+    },
+    "china_cotf": {
+      "underweight": "<18.5",
+      "normal": "18.5 – 23.9",
+      "overweight": "24.0 – 27.9",
+      "obese": "≥28.0"
+    },
+    "common_reference": {
+      "underweight": "<18.5",
+      "normal_range": "18.5 – 23.9",
+      "overweight": "24.0 – 27.9",
+      "obese": "≥28.0"
+    }
   },
+
   "body_fat_percentage": {
-    "_source": "待填充 - 需要东亚人群体脂率研究数据",
-    "_note": "亚洲人群在相同BMI下体脂率高于西方人群",
-    "male": {},
-    "female": {}
+    "_source": "ACSM体脂率分类 + 亚洲人群调整（ACE, NASM, Gallagher 2000亚裔数据）",
+    "_note": "亚洲人群在相同BMI下体脂率较西方人群高2-4个百分点。生物电阻抗(BIA)和皮褶测量(PBF)误差±3-5%。DEXA为金标准。",
+    "male": {
+      "essential_fat": "2 – 5%",
+      "athletes": "6 – 13%",
+      "fitness": "14 – 17%",
+      "acceptable": "18 – 24%",
+      "obese": "≥25%",
+      "east_asian_adjustment": "以上范围基础上加2%作为风险预警（亚洲人群体脂率偏高）"
+    },
+    "female": {
+      "essential_fat": "10 – 13%",
+      "athletes": "14 – 20%",
+      "fitness": "21 – 24%",
+      "acceptable": "25 – 31%",
+      "obese": "≥32%",
+      "east_asian_adjustment": "以上范围基础上加2%作为风险预警（亚洲人群体脂率偏高）"
+    },
+    "age_adjustment": {
+      "_note": "每增加10岁，体脂率允许上浮1-2%（肌肉自然流失）",
+      "20_39": "上述标准范围",
+      "40_59": "上述范围 + 2%",
+      "60_plus": "上述范围 + 3%"
+    }
   },
+
   "waist_circumference": {
-    "_source": "待填充",
-    "male_increased_risk": "≥90cm（暂用国际标准，待确认中国标准）",
-    "female_increased_risk": "≥80cm（暂用国际标准，待确认中国标准）"
+    "_source": "中国COTF + IDF（国际糖尿病联盟）东亚标准",
+    "_note": "中国标准严于国际标准（男<90cm vs 国际<102cm）",
+    "male": {
+      "normal": "<85 cm",
+      "increased_risk": "85 – 89 cm",
+      "high_risk": "≥90 cm"
+    },
+    "female": {
+      "normal": "<80 cm",
+      "increased_risk": "80 – 84 cm",
+      "high_risk": "≥85 cm"
+    },
+    "international_comparison": {
+      "who_international_male": "<102 cm",
+      "who_international_female": "<88 cm",
+      "idf_east_asian_male": "<90 cm",
+      "idf_east_asian_female": "<80 cm"
+    }
   },
+
+  "waist_to_hip_ratio": {
+    "_source": "WHO + 中国心血管病风险评估",
+    "male_increased_risk": "≥0.90",
+    "female_increased_risk": "≥0.85",
+    "_note": "腰臀比(WHR)是心血管风险的独立预测因子，比单独腰围或BMI更准确"
+  },
+
+  "waist_to_height_ratio": {
+    "_source": "Browning 2010 + 中国研究",
+    "_note": "腰高比(WHtR)简单有效，适用于不同身高人群。目标<0.5。",
+    "optimal": "<0.5",
+    "increased_risk": "0.5 – 0.6",
+    "high_risk": ">0.6"
+  },
+
+  "blood_pressure": {
+    "_source": "中国高血压防治指南 2018",
+    "_unit": "mmHg",
+    "categories": {
+      "optimal": "SBP<120 且 DBP<80",
+      "normal": "SBP 120-129 且/或 DBP 80-84",
+      "high_normal": "SBP 130-139 且/或 DBP 85-89",
+      "hypertension_stage1": "SBP 140-159 且/或 DBP 90-99",
+      "hypertension_stage2": "SBP 160-179 且/或 DBP 100-109",
+      "hypertension_stage3": "SBP≥180 且/或 DBP≥110"
+    },
+    "exercise_safety": {
+      "_note": "运动前血压>160/100mmHg应先控制血压再运动",
+      "safe_to_exercise": "SBP<160 且 DBP<100",
+      "medical_clearance_required": "SBP≥160 或 DBP≥100",
+      "avoid_valsalva": "所有高血压患者应避免Valsalva动作（憋气发力）"
+    }
+  },
+
+  "resting_heart_rate": {
+    "_source": "ACSM 第11版",
+    "_unit": "bpm",
+    "male": {
+      "excellent": "<56",
+      "good": "56 – 65",
+      "above_average": "66 – 76",
+      "average": "77 – 86",
+      "below_average": "87 – 96",
+      "poor": ">96"
+    },
+    "female": {
+      "excellent": "<61",
+      "good": "61 – 70",
+      "above_average": "71 – 80",
+      "average": "81 – 90",
+      "below_average": "91 – 100",
+      "poor": ">100"
+    }
+  },
+
+  "max_heart_rate_formulas": {
+    "_source": "ACSM, Tanaka, Gellish",
+    "_note": "220-age误差±12bpm。Tanaka公式更准确(208-0.7×age)。Gellish(207-0.7×age)适合中年人。",
+    "standard": "220 - age",
+    "tanaka": "208 - 0.7 × age",
+    "gellish": "207 - 0.7 × age",
+    "obese_adaptation": "肥胖者用(200 - 0.5 × age)更保守"
+  },
+
+  "heart_rate_zones": {
+    "_source": "ACSM, NSCA",
+    "_based_on_hrr": "心率储备法(HRR) = (HRmax - HRrest) × % + HRrest",
+    "zones": {
+      "very_light": { "hrr_pct": "<30%", "rpe_1_10": "1-2", "use": "热身/恢复" },
+      "light": { "hrr_pct": "30-39%", "rpe_1_10": "2-3", "use": "基础耐力/减重" },
+      "moderate": { "hrr_pct": "40-59%", "rpe_1_10": "3-4", "use": "有氧基础" },
+      "vigorous": { "hrr_pct": "60-89%", "rpe_1_10": "5-7", "use": "无氧阈/运动表现" },
+      "maximal": { "hrr_pct": "≥90%", "rpe_1_10": "8-10", "use": "冲刺/HIIT" }
+    }
+  },
+
+  "blood_lipids": {
+    "_source": "中国成人血脂异常防治指南 2016",
+    "_unit": "mmol/L (括号内为mg/dL)",
+    "reference": {
+      "total_cholesterol": { "desirable": "<5.2 (<200)", "borderline": "5.2-6.2 (200-240)", "high": "≥6.2 (≥240)" },
+      "ldl_c": { "optimal": "<3.4 (<130)", "borderline": "3.4-4.1 (130-160)", "high": "≥4.1 (≥160)" },
+      "hdl_c": { "low_male": "<1.0 (<40)", "low_female": "<1.3 (<50)", "optimal": "≥1.6 (≥60)" },
+      "triglycerides": { "normal": "<1.7 (<150)", "borderline": "1.7-2.3 (150-200)", "high": "≥2.3 (≥200)" }
+    }
+  },
+
+  "fasting_glucose": {
+    "_source": "中国2型糖尿病防治指南 2020",
+    "_unit": "mmol/L",
+    "categories": {
+      "normal": "<6.1",
+      "impaired_fasting_glucose_ifg": "6.1 – 6.9",
+      "diabetic": "≥7.0 (需重复确认)"
+    }
+  },
+
+  "grip_strength": {
+    "_source": "中国国民体质测定标准 2023 + Dodds 2014",
+    "_note": "握力是全因死亡率的独立预测因子。中国成人握力偏低于西方。",
+    "_unit": "kg",
+    "male": {
+      "excellent": ">50",
+      "good": "40 – 50",
+      "fair": "30 – 39",
+      "poor": "<30",
+      "sarcopenia_risk_china_male": "<28 (AWGS 2019标准)"
+    },
+    "female": {
+      "excellent": ">32",
+      "good": "25 – 32",
+      "fair": "18 – 24",
+      "poor": "<18",
+      "sarcopenia_risk_china_female": "<18 (AWGS 2019标准)"
+    }
+  },
+
   "body_measurements": {
-    "_description": "各部位围度参考范围 - 待填充"
+    "_description": "中国成年男性/女性各部位围度平均参考值（单位：cm）。基于中国国民体质监测数据。",
+    "_note": "个体差异大。以下为18-59岁中国成年人平均值±1SD范围，非判定标准。",
+    "male": {
+      "chest": "89 ± 6",
+      "waist": "84 ± 9",
+      "hip": "93 ± 5",
+      "upper_arm_flexed": "33 ± 3",
+      "thigh": "54 ± 4",
+      "calf": "36 ± 3"
+    },
+    "female": {
+      "chest": "85 ± 6",
+      "waist": "75 ± 8",
+      "hip": "91 ± 6",
+      "upper_arm_flexed": "28 ± 3",
+      "thigh": "53 ± 5",
+      "calf": "34 ± 3"
+    }
+  },
+
+  "flexibility_norms": {
+    "_source": "ACSM, 中国国民体质测定标准",
+    "sit_and_reach": {
+      "_unit": "cm",
+      "_test": "坐姿体前屈（双脚抵箱，指尖前伸）",
+      "male": {
+        "excellent": ">22", "good": "13 – 22", "fair": "3 – 12", "poor": "<3"
+      },
+      "female": {
+        "excellent": ">25", "good": "16 – 25", "fair": "5 – 15", "poor": "<5"
+      }
+    }
+  },
+
+  "daily_energy_requirements": {
+    "_source": "中国居民膳食指南2022 + WHO/FAO",
+    "_note": "基础代谢率BMR公式使用Mifflin-St Jeor（最准确）。PAL=体力活动水平。TEE=BMR×PAL。",
+    "bmr_mifflin_st_jeor": {
+      "male": "10 × 体重(kg) + 6.25 × 身高(cm) - 5 × 年龄(y) + 5",
+      "female": "10 × 体重(kg) + 6.25 × 身高(cm) - 5 × 年龄(y) - 161"
+    },
+    "pal_levels": {
+      "sedentary": 1.2,
+      "lightly_active": 1.375,
+      "moderately_active": 1.55,
+      "very_active": 1.725,
+      "extremely_active": 1.9
+    },
+    "macronutrient_distribution_china": {
+      "_note": "中国居民膳食指南推荐的AMDR（可接受宏量营养素分布范围）",
+      "carbohydrate": "50 – 65% 总能量",
+      "protein": "10 – 15% 总能量（运动人群可到15-25%）",
+      "fat": "20 – 30% 总能量"
+    }
+  },
+
+  "hydration_reference": {
+    "_source": "中国居民膳食指南2022 + ACSM",
+    "daily_total_water": {
+      "male": "1.7 L/天（约7-8杯，含食物中水分）",
+      "female": "1.5 L/天（约6-7杯，含食物中水分）"
+    },
+    "exercise_hydration": {
+      "pre_exercise": "运动前2-4小时：5-7mL/kg体重",
+      "during_exercise": "每15-20分钟：150-300mL",
+      "post_exercise": "每减重1kg补充1.25-1.5L液体",
+      "sodium_replacement": "长时间出汗(>2h)需补钠0.5-0.7g/L水"
+    }
+  },
+
+  "vitamin_d_reference": {
+    "_source": "中国居民膳食营养素参考摄入量(DRIs) 2013 + Endocrine Society",
+    "_note": "东亚人群维生素D缺乏率高（中国成人约60-80%不足），需特别关注。",
+    "_unit": "nmol/L (括号内为ng/mL)",
+    "status": {
+      "deficient": "<30 (<12)",
+      "insufficient": "30 – 49 (12 – 20)",
+      "sufficient": "50 – 75 (20 – 30)",
+      "optimal": ">75 (>30)",
+      "upper_safe_limit": "<125 (<50)"
+    }
   }
 }
