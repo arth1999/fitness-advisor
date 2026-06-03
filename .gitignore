@@ -28,7 +28,10 @@ Thumbs.db
 # Plans
 *.jsonl
 
-# User data imports (contains personal health data)
+# User data (contains personal health data — templates only in repo)
+assets/user-data/body-log.json
+assets/user-data/workout-log.json
+assets/user-data/profile.json
 assets/user-data/imports/
 
 # Temp files
