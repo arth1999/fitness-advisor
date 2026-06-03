@@ -185,6 +185,8 @@ def cmd_login():
         status = result.get("status", "")
         if status == "confirmed":
             print("\n✅ 扫码确认成功！")
+            # DEBUG: print all keys
+            print(f"  [DEBUG] Response keys: {list(result.keys())}")
             break
         elif status == "scaned":
             print("\n📱 已扫码，请在手机上确认...", end="", flush=True)
@@ -204,10 +206,13 @@ def cmd_login():
         sys.exit(1)
 
     # Step 3: Save credentials
-    bot_token = result.get("botToken", "")
-    account_id = result.get("ilink_bot_id", "")
-    user_id = result.get("ilink_user_id", "")
-    base_url = result.get("baseurl", BASE_URL)
+    # Try multiple possible key names
+    bot_token = result.get("botToken") or result.get("bot_token") or result.get("token") or ""
+    account_id = result.get("ilink_bot_id") or result.get("account_id") or ""
+    user_id = result.get("ilink_user_id") or result.get("user_id") or ""
+    base_url = result.get("baseurl") or result.get("base_url") or result.get("baseUrl") or BASE_URL
+    if isinstance(base_url, str) and base_url:
+        base_url = base_url.rstrip("/")
 
     cfg = {
         "bot_token": bot_token,
