@@ -265,8 +265,9 @@ def call_claude_code(message: str, session_id: str) -> str:
 
     history = sessions[session_id][-10:]
 
-    # Use claude CLI in non-interactive mode (-p = print mode)
-    cmd = ["claude", "-p", "--output-format", "text"]
+    # Use claude CLI in non-interactive mode
+    # IMPORTANT: -p must come LAST with the prompt immediately after
+    cmd = ["claude", "--output-format", "text", "-p"]
 
     # Strip emoji from input to avoid encoding issues
     def strip_emoji(text):
