@@ -265,8 +265,8 @@ def call_claude_code(message: str, session_id: str) -> str:
 
     history = sessions[session_id][-10:]
 
-    # Use claude CLI in non-interactive mode
-    cmd = ["claude", "--print", "--output-format", "text"]
+    # Use claude CLI in non-interactive mode (-p = print mode)
+    cmd = ["claude", "-p", "--output-format", "text"]
 
     # Strip emoji from input to avoid encoding issues
     def strip_emoji(text):
@@ -302,8 +302,7 @@ def call_claude_code(message: str, session_id: str) -> str:
         env = os.environ.copy()
         env["PYTHONIOENCODING"] = "utf-8"
         result = subprocess.run(
-            cmd,
-            input=full_input,
+            cmd + [full_input],
             capture_output=True,
             timeout=120,
             env=env,
