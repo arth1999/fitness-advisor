@@ -58,8 +58,8 @@ templates/                         # 输出模板
 ## 安装
 
 ```bash
-git clone https://github.com/arth1999/fitness-advisor.git
-cp -r fitness-advisor ~/.claude/skills/fitness-advisor
+git clone https://github.com/arth1999/fitness-advisor-skill.git
+cp -r fitness-advisor-skill ~/.claude/skills/fitness-advisor
 ```
 
 首次使用时初始化数据库：
@@ -73,6 +73,42 @@ python scripts/db_init.py
 ```bash
 python scripts/db_migrate.py
 ```
+
+## 工具与方法论
+
+本项目的构建使用了以下开源工具和方法论。所有第三方成果均已标注出处。
+
+| 工具/方法 | 用途 | 来源 |
+|-----------|------|------|
+| [book-to-skill](https://github.com/virgiliojr94/book-to-skill) | 教材知识提取方法论：提取命名框架、心智模型、决策模式，按章组织，按需加载 | virgiliojr94 |
+| [MinerU](https://github.com/opendatalab/MinerU) | PDF 文档 OCR 与结构化提取，将扫描教材转为 Markdown | OpenDataLab, 上海 AI 实验室 |
+| [Sanotsu/china-food-composition-data](https://github.com/Sanotsu/china-food-composition-data) | 《中国食物成分表》第6版 OCR 提取，使用 Qwen2.5-VL-72B 视觉模型 | Sanotsu |
+| [Sanotsu/fetch-glycemic-index](https://github.com/Sanotsu/fetch-glycemic-index) | 血糖生成指数 (GI) 系统综述数据 | Sanotsu |
+| [Qwen2.5-VL-72B](https://github.com/QwenLM/Qwen2.5-VL) | 食物成分表 OCR 视觉语言模型 | Alibaba Cloud / Tongyi Lab |
+| [cc-connect](https://github.com/chenhg5/cc-connect) | Claude Code 到微信等多平台的消息桥接 | chenhg5 |
+| [Claude Code](https://claude.com/claude-code) | AI 编程助手，技能运行平台 | Anthropic |
+| [pypdf](https://github.com/py-pdf/pypdf) | PDF 拆分工具（教材按章分割） | py-pdf |
+| [wger-project/wger](https://github.com/wger-project/wger) | 健身数据模型参考（训练周期、身体测量 schema） | wger |
+| [Apple HealthKit](https://developer.apple.com/documentation/healthkit) | 健康数据导出格式 (export.xml)，Apple Health 导入脚本参考 | Apple Inc. |
+
+### 健康参考标准
+
+身体数据分析中使用的标准切点来自以下指南和研究：
+
+| 标准 | 来源 |
+|------|------|
+| BMI 切点（亚洲） | WHO 西太平洋地区标准 + 中国肥胖问题工作组 (COTF) |
+| 体脂率（亚洲调整） | ACSM 体脂率分类; Gallagher 2000 (Am J Clin Nutr) 亚裔数据 |
+| 腰围风险阈值 | 中国 COTF + IDF 东亚标准 |
+| 腰臀比 / 腰高比 | WHO; Browning 2010; 中国心血管病风险评估 |
+| 血压分级 | 中国高血压防治指南 2018 |
+| 血脂参考 | 中国成人血脂异常防治指南 2016 |
+| 血糖参考 | 中国 2 型糖尿病防治指南 2020 |
+| 最大心率公式 | ACSM; Tanaka (2001); Gellish (2007) |
+| 基础代谢率 | Mifflin-St Jeor 方程 (1990) |
+| 握力参考 | 中国国民体质测定标准 2023; Dodds 2014 |
+| 微量营养素参考 | 中国居民膳食营养素参考摄入量 (DRIs) 2013; Endocrine Society |
+| 宏量素分配范围 | 中国居民膳食指南 2022 |
 
 ## 数据来源
 
