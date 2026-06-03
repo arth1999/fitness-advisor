@@ -240,60 +240,74 @@ def call_claude_code(message: str, session_id: str) -> str:
     if session_id not in sessions:
         sessions[session_id] = []
 
-    # Build the prompt
-    # For ongoing conversations, we pass the last few exchanges as context
-    history = sessions[session_id][-10:]  # Keep last 5 exchanges (10 msgs)
+    history = sessions[session_id][-10:]
 
     # Use claude CLI in non-interactive mode
-    # --print: output only the response, no UI
-    # --output-format text: plain text response
     cmd = ["claude", "--print", "--output-format", "text"]
 
-    # Build the input. For conversation continuity, we can pass
-    # the full context as a single prompt with history
+    # Strip emoji from input to avoid encoding issues
+    def strip_emoji(text):
+        import re
+        emoji_pattern = re.compile(
+            "["
+            "\U0001F600-\U0001F64F"  # emoticons
+            "\U0001F300-\U0001F5FF"  # symbols & pictographs
+            "\U0001F680-\U0001F6FF"  # transport & map
+            "\U0001F1E0-\U0001F1FF"  # flags
+            "\U00002702-\U000027B0"
+            "\U000024C2-\U0001F251"
+            "]+", flags=re.UNICODE)
+        return emoji_pattern.sub(r'', text)
+
     if history:
         context_parts = ["[Previous conversation]"]
         for h in history:
             role = "User" if h["role"] == "user" else "Claude"
-            context_parts.append(f"{role}: {h['msg']}")
+            context_parts.append(f"{role}: {strip_emoji(h['msg'])}")
         context_parts.append("---")
         context_parts.append(f"[New message] {message}")
         full_input = "\n".join(context_parts)
     else:
-        # First message: prepend the fitness advisor context
         full_input = (
-            f"You are a fitness & nutrition advisor connected via WeChat. "
-            f"Keep responses concise (under 500 characters when possible) since "
-            f"the user is on mobile. Use Chinese.\n\n"
+            "You are a fitness & nutrition advisor connected via WeChat. "
+            "Keep responses concise (under 500 characters when possible) since "
+            "the user is on mobile. Use Chinese. Do NOT use emoji.\n\n"
             f"User message: {message}"
         )
 
     try:
+        env = os.environ.copy()
+        env["PYTHONIOENCODING"] = "utf-8"
         result = subprocess.run(
             cmd,
             input=full_input,
             capture_output=True,
-            text=True,
             timeout=120,
-            encoding="utf-8",
+            env=env,
         )
+        # Decode manually with error handling
+        stdout = result.stdout.decode("utf-8", errors="replace").strip() if result.stdout else ""
+        stderr = result.stderr.decode("utf-8", errors="replace").strip() if result.stderr else ""
+
         if result.returncode == 0:
-            reply = result.stdout.strip()
+            reply = stdout
         else:
-            reply = f"抱歉，处理消息时出错: {result.stderr[:200]}"
+            reply = f"Sorry, error: {stderr[:200]}"
+
+        # Remove emoji from reply for Windows console + WeChat compatibility
+        reply = strip_emoji(reply)
 
         # Save to history
         sessions[session_id].append({"role": "user", "msg": message, "ts": time.time()})
         sessions[session_id].append({"role": "assistant", "msg": reply, "ts": time.time()})
-        # Trim old history (keep last 50 exchanges)
         sessions[session_id] = sessions[session_id][-50:]
         save_sessions(sessions)
 
         return reply
     except subprocess.TimeoutExpired:
-        return "抱歉，回复超时了，请稍后再试。"
+        return "Sorry, response timed out. Please try again."
     except Exception as e:
-        return f"抱歉，出错了: {e}"
+        return f"Sorry, error: {str(e)[:200]}"
 
 
 # ============================================================
