@@ -151,24 +151,24 @@ def cmd_login():
         print("ERROR: 响应中无二维码")
         sys.exit(1)
 
-    # Print QR in terminal (ASCII)
-    print("\n请用微信扫描以下二维码：\n")
+    # Save QR code as PNG image file
+    qr_img_file = DATA_DIR / "qr-login.png"
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
     try:
         import qrcode
-        import sys
         qr = qrcode.QRCode()
         qr.add_data(qrcode_img)
-        # Handle Windows GBK encoding issue
+        img = qr.make_image()
+        img.save(str(qr_img_file))
+        print(f"\n[1/3] 二维码已保存 → {qr_img_file}")
+        print(f"      请用微信扫一扫打开此图片文件")
+        # Try to open the image automatically
         try:
-            qr.print_ascii(invert=True)
-        except UnicodeEncodeError:
-            # Fallback: print the URL directly
-            print(qrcode_img)
-    except ImportError:
-        print(qrcode_img)
-        print("\n(tip: pip install qrcode[pil] for terminal QR)")
-    except Exception:
-        print(qrcode_img)
+            os.startfile(str(qr_img_file))
+        except Exception:
+            pass
+    except Exception as e:
+        print(f"\nQR生成失败 ({e}), 请打开链接扫码：{qrcode_img}")
 
     # Step 2: Poll for scan
     print("\n[2/3] 等待扫码确认...")
