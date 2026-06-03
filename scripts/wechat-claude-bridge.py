@@ -29,6 +29,13 @@ import urllib.request
 import urllib.parse
 from pathlib import Path
 
+# Fix Windows encoding for emoji/Chinese output
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 # ============================================================
 # Constants
 # ============================================================
@@ -138,9 +145,9 @@ def cmd_login():
         print("ERROR: 获取二维码失败")
         sys.exit(1)
 
-    qrcode = resp.get("qrcode", "")
+    qrcode_token = resp.get("qrcode", "")
     qrcode_img = resp.get("qrcode_img_content", "")
-    if not qrcode_img:
+    if not qrcode_token or not qrcode_img:
         print("ERROR: 响应中无二维码")
         sys.exit(1)
 
@@ -148,16 +155,24 @@ def cmd_login():
     print("\n请用微信扫描以下二维码：\n")
     try:
         import qrcode
+        import sys
         qr = qrcode.QRCode()
         qr.add_data(qrcode_img)
-        qr.print_ascii(invert=True)
+        # Handle Windows GBK encoding issue
+        try:
+            qr.print_ascii(invert=True)
+        except UnicodeEncodeError:
+            # Fallback: print the URL directly
+            print(qrcode_img)
     except ImportError:
         print(qrcode_img)
-        print("\n(安装 qrcode 库可显示终端二维码: pip install qrcode[pil])")
+        print("\n(tip: pip install qrcode[pil] for terminal QR)")
+    except Exception:
+        print(qrcode_img)
 
     # Step 2: Poll for scan
     print("\n[2/3] 等待扫码确认...")
-    poll_url = f"/ilink/bot/get_qrcode_status?qrcode={urllib.parse.quote(qrcode)}"
+    poll_url = f"/ilink/bot/get_qrcode_status?qrcode={urllib.parse.quote(qrcode_token)}"
     started = time.time()
     max_wait = 480  # 8 minutes
 
@@ -281,6 +296,8 @@ def call_claude_code(message: str, session_id: str) -> str:
 # ============================================================
 def run_bridge():
     """Main loop: poll messages → Claude Code → send reply."""
+    global BASE_URL
+
     cfg = load_config()
     if not cfg.get("bot_token"):
         print("ERROR: 未登录。请先运行: python scripts/wechat-claude-bridge.py login")
@@ -307,7 +324,6 @@ def run_bridge():
     signal.signal(signal.SIGTERM, on_signal)
 
     # Use base_url for API calls if different from default
-    global BASE_URL
     BASE_URL = base_url.rstrip("/")
 
     while running:
